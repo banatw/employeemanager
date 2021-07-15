@@ -5,12 +5,15 @@ import java.util.Arrays;
 import com.github.javafaker.Faker;
 
 import org.bana.employeemanager.model.Employee;
+import org.bana.employeemanager.model.UserApp;
+import org.bana.employeemanager.repo.UserRepository;
 import org.bana.employeemanager.service.EmployeeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
@@ -19,6 +22,11 @@ import org.springframework.web.filter.CorsFilter;
 public class EmployeemanagerApplication implements CommandLineRunner {
 	@Autowired
 	private EmployeeService employeeService;
+
+	@Autowired
+	private UserRepository userRepository;
+
+
 
 	public static void main(String[] args) {
 		SpringApplication.run(EmployeemanagerApplication.class, args);
@@ -42,18 +50,21 @@ public class EmployeemanagerApplication implements CommandLineRunner {
 
 	@Override
 	public void run(String... args) throws Exception {
-		// TODO Auto-generated method stub
 		Faker faker = new Faker();
 		Employee employee;
 		for(int i=0;i<10;i++) {
 			employee = new Employee();
-			employee.setEmail(faker.internet().emailAddress());
 			employee.setName(faker.name().fullName());
 			employee.setJobTitle(faker.job().title());
-			employee.setImageUrl("http://placeimg.com/640/360/any");
 			employee.setPhone(faker.phoneNumber().phoneNumber());
 			employeeService.addEmployee(employee);
 		}
+
+		BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+
+			userRepository.save(new UserApp("user", encoder.encode("user"), "ROLE_USER"));
+
+			userRepository.save(new UserApp("admin", encoder.encode("admin"), "ROLE_ADMIN"));
 		
 	}
 

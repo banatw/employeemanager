@@ -1,7 +1,6 @@
 package org.bana.employeemanager.service;
 
 import java.util.List;
-import java.util.UUID;
 
 import org.bana.employeemanager.exception.UserNotFoundException;
 import org.bana.employeemanager.model.Employee;
@@ -19,7 +18,6 @@ public class EmployeeService {
     }
 
     public Employee addEmployee(Employee employee) {
-        employee.setEmployeeCode(UUID.randomUUID().toString());
         return employeeRepo.save(employee);
     }
 
