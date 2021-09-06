@@ -8,6 +8,7 @@ import javax.validation.Valid;
 
 import org.bana.employeemanager.model.Employee;
 import org.bana.employeemanager.service.EmployeeService;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
@@ -20,6 +21,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -65,14 +67,21 @@ public class EmployeeResource {
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public Map<String,String> handleValidationExceptions(MethodArgumentNotValidException ex) {
-        Map<String,String> errors = new HashMap<>();
-        ex.getBindingResult().getAllErrors().forEach(err->{
+    public Map<String, String> handleValidationExceptions(MethodArgumentNotValidException ex) {
+        Map<String, String> errors = new HashMap<>();
+        ex.getBindingResult().getAllErrors().forEach(err -> {
             String fieldName = ((FieldError) err).getField();
             String errMessage = err.getDefaultMessage();
-            errors.put(fieldName, errMessage); 
+            errors.put(fieldName, errMessage);
         });
         return errors;
+    }
+
+    @GetMapping("/all/{page}/{size}")
+    public ResponseEntity<Page<Employee>> findAllEmployeePagination(@PathVariable("page") int page,
+            @PathVariable("size") int size) {
+        Page<Employee> lEmployees = employeeService.findAllPagination(page, size);
+        return new ResponseEntity<>(lEmployees, HttpStatus.OK);
     }
 
 }
