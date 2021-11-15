@@ -34,6 +34,7 @@ public class EmployeemanagerApplication implements CommandLineRunner {
 	public CorsFilter corsFilter() {
 		CorsConfiguration corsConfiguration = new CorsConfiguration();
 		corsConfiguration.setAllowCredentials(true);
+		// *
 		corsConfiguration.setAllowedOrigins(Arrays.asList("http://localhost:4200"));
 		corsConfiguration.setAllowedHeaders(Arrays.asList("Origin", "Access-Control-Allow-Origin", "Content-Type",
 				"Accept", "Authorization", "Origin, Accept", "X-Requested-With", "Access-Control-Request-Method",
@@ -62,7 +63,7 @@ public class EmployeemanagerApplication implements CommandLineRunner {
 
 		userRepository.save(new UserApp("user", encoder.encode("user"), "ROLE_USER"));
 
-		userRepository.save(new UserApp("admin", encoder.encode("admin"), "ROLE_ADMIN"));
+		userRepository.save(new UserApp("admin", encoder.encode("admin"), "ROLE_ADMIN,ROLE_USER"));
 
 	}
 

@@ -3,6 +3,11 @@ package org.bana.employeemanager;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -11,6 +16,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import org.apache.commons.lang3.StringUtils;
 import org.bana.employeemanager.model.AccountCredentials;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -48,13 +54,18 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
     @Override
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain,
             Authentication authResult) throws IOException, ServletException {
-        // TODO Auto-generated method stub
-        String token = Jwts.builder().setSubject(((User) authResult.getPrincipal()).getUsername())
+
+        Map<String, Object> claims = new HashMap<>();
+        List<String> listRoles = authResult.getAuthorities().stream().map(object -> Objects.toString(object))
+                .collect(Collectors.toList());
+        // final String roles = "";
+        String roles = StringUtils.join(listRoles, ",");
+
+        claims.put("roles", roles);
+        String token = Jwts.builder().setClaims(claims).setSubject(((User) authResult.getPrincipal()).getUsername())
                 .setExpiration(new Date(System.currentTimeMillis() + SecurityConstants.EXPIRATION_TIME))
                 .signWith(SignatureAlgorithm.HS512, SecurityConstants.SECRET).compact();
         response.addHeader(SecurityConstants.HEADER_STRING, SecurityConstants.TOKEN_PREFIX + token);
     }
-
-   
 
 }

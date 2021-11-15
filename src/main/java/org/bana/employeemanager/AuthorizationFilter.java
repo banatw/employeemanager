@@ -12,9 +12,11 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 
 public class AuthorizationFilter extends BasicAuthenticationFilter {
@@ -44,11 +46,17 @@ public class AuthorizationFilter extends BasicAuthenticationFilter {
         String token = request.getHeader(SecurityConstants.HEADER_STRING);
         if (token != null) {
             // parse the token.
-            String user = Jwts.parser().setSigningKey(SecurityConstants.SECRET)
-                    .parseClaimsJws(token.replace(SecurityConstants.TOKEN_PREFIX, "")).getBody().getSubject();
+            Claims claims = Jwts.parser().setSigningKey(SecurityConstants.SECRET)
+                    .parseClaimsJws(token.replace(SecurityConstants.TOKEN_PREFIX, "")).getBody();
+            String user = claims.getSubject();
+            // String roles = Jwts.parser().setSigningKey(SecurityConstants.SECRET)
+            // .parseClaimsJws(token.replace(SecurityConstants.TOKEN_PREFIX,
+            // "")).getBody().get("role").toString();
 
+            String roles = claims.get("roles").toString();
             if (user != null) {
-                return new UsernamePasswordAuthenticationToken(user, null, new ArrayList<>());
+                return new UsernamePasswordAuthenticationToken(user, null,
+                        AuthorityUtils.commaSeparatedStringToAuthorityList(roles));
             }
             return null;
         }
