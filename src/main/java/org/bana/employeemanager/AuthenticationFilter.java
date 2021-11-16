@@ -18,6 +18,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import org.apache.commons.lang3.StringUtils;
 import org.bana.employeemanager.model.AccountCredentials;
+import org.bana.employeemanager.model.AuthResponse;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -55,14 +56,12 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain,
             Authentication authResult) throws IOException, ServletException {
 
-        Map<String, Object> claims = new HashMap<>();
         List<String> listRoles = authResult.getAuthorities().stream().map(object -> Objects.toString(object))
                 .collect(Collectors.toList());
         // final String roles = "";
         String roles = StringUtils.join(listRoles, ",");
 
-        claims.put("roles", roles);
-        String token = Jwts.builder().setClaims(claims).setSubject(((User) authResult.getPrincipal()).getUsername())
+        String token = Jwts.builder().setAudience(roles).setSubject(((User) authResult.getPrincipal()).getUsername())
                 .setExpiration(new Date(System.currentTimeMillis() + SecurityConstants.EXPIRATION_TIME))
                 .signWith(SignatureAlgorithm.HS512, SecurityConstants.SECRET).compact();
         response.addHeader(SecurityConstants.HEADER_STRING, SecurityConstants.TOKEN_PREFIX + token);

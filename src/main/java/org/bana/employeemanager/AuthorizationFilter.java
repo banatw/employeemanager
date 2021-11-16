@@ -1,7 +1,6 @@
 package org.bana.employeemanager;
 
 import java.io.IOException;
-import java.util.ArrayList;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -53,7 +52,7 @@ public class AuthorizationFilter extends BasicAuthenticationFilter {
             // .parseClaimsJws(token.replace(SecurityConstants.TOKEN_PREFIX,
             // "")).getBody().get("role").toString();
 
-            String roles = claims.get("roles").toString();
+            String roles = claims.getAudience();
             if (user != null) {
                 return new UsernamePasswordAuthenticationToken(user, null,
                         AuthorityUtils.commaSeparatedStringToAuthorityList(roles));
